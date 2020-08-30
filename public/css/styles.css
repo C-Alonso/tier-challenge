@@ -12,6 +12,7 @@ body {
 
 .main-content {
     flex-grow: 1;
+    color: #69D2AB;
 }
 
 footer {
@@ -54,7 +55,7 @@ input {
 button {
     cursor: pointer;
     border: orchid;
-    background: orchid;
-    color: white;
+    background: #00103C;
+    color: #69D2AB;
     padding: 8px;
 }

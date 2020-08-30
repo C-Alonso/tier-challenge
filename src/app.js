@@ -1,14 +1,16 @@
-const path = require('path')
 const express = require('express')
-const hbs = require('hbs')
-
-const geocode = require('./utils/geocode')
-const forecast = require('./utils/forecast')
+//Doesn't grab anything. Just ensures connection to the db.
+require('./db/mongoose')
+//Routers
+const addressRouter = require('./routers/address')
+const counterRouter = require('./routers/counter')
 
 const app = express()
 
-//Uses the one that exists (depending on whether the project runs locally or on Heroku)
-const port = process.env.PORT || 3000
+const path = require('path')
+const hbs = require('hbs')
+
+
 
 //Define paths for Express config
 const publicDirectoryPath = path.join(__dirname, '../public')
@@ -22,104 +24,28 @@ app.set('views', viewsPath)
 //Setup static directory to serve
 app.use(express.static(publicDirectoryPath))
 
+app.use(express.json())
+
+
 app.get('', (reqShevo, resShevo) => {
     resShevo.render('index', {
-        title: 'Shevo Weather App',
-        name: 'Shevo'
+        title: 'TIER URL-Shortener',
+        name: 'Carlos Alonso'
     })
 })
 
-app.get('/about', (reqShevo, resShevo) => {
-    resShevo.render('about', {
-        title: 'About a shevo! :)',
-        name: 'Some shevo'
-    })
-})
+//Automatically parse incoming JSON
+app.use(addressRouter)
+app.use(counterRouter)
 
-app.get('/help', (reqShevo, resShevo) => {
-    resShevo.render('help', {
-        title: 'Help',
-        name: 'A helping shevo',
-        helpText: 'Help it!',        
-    })
-})
-//Commented because it's actually never called.
-// app.get('', (reqShevo, resShevo) => {
-//     resShevo.send('<h1>Hello shevo!</h1>')
-// })
 
-// app.get('/help', (reqShevo, resShevo) => {
-//     resShevo.send([
-//         {
-//             name: 'Shevo',
-//             age: 29
-//         },
-//         {
-//             name: 'Shevo',
-//             age: 29
-//             },
-//     ])
-// })
-
-// app.get('/about', (reqShevo, resShevo) => {
-//     resShevo.send('<h1>About a shevo!</h1>')
-// })
-
-app.get('/weather', (reqShevo, resShevo) => {
-    //When there is no address in the query.
-    if (!reqShevo.query.address) {
-        return resShevo.send({
-            error: "You must provide a location"
-        })
-    }
-
-    geocode(reqShevo.query.address, (error, {latitude, longitude, location} = {}) => { //We set the {} as a default return value.
-        if (error) {
-            return resShevo.send({
-                error: error // or just error would work as well.
-            })
-        }
-
-        //Callback function chaining. Used to syncronize steps in the process.
-        forecast(latitude, longitude, (error, forecastData) => {
-            if(error) {
-                return resShevo.send({
-                    error //error: error would work as well
-                })
-            }
-            resShevo.send({
-                forecast: forecastData.description,
-                location: location,
-                address: reqShevo.query.address
-            })
-        })
-    })
-
-    
-})
-
-// app.com
-// app.com/help
-// app.com/about
-
-app.get('/help/*', (reqShevo, resShevo) => {
-    resShevo.render('404', {
-        title: '404 Help',
-        errorMessage: 'Help not found',
-        name: 'Shevo'
-    })
-})
-
-//Wildcard for matching anything that wasn't matched before.
+//Wildcard for matching anything that wasn't matched.
 app.get('*', (reqShevo, resShevo) => {
     resShevo.render('404', {
         title: '404',
         errorMessage: 'Page not found',
-        name: 'Shevo'
+        name: 'Carlos Alonso'
     })
 })
 
-app.listen(port, () => {
-    console.log('Server is up on port ' + port)
-})
-
+module.exports = app
